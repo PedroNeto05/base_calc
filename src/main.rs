@@ -1,3 +1,5 @@
+mod utils;
+
 fn main() {
-    println!("Hello, world!");
+    let teste = utils::input("Digite algo: ");
 }
