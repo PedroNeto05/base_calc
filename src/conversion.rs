@@ -5,3 +5,10 @@ pub struct FloatPoint {
     pub min_exp: i32,
     pub max_exp: i32,
 }
+fn char_to_digit(digit: &char) -> Option<u8> {
+    match digit {
+        '0'..='9' => Some(*digit as u8 - b'0'),
+        'A'..='F' => Some(*digit as u8 - b'A' + 10),
+        _ => panic!("Invalid char"),
+    }
+}
