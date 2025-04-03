@@ -33,7 +33,7 @@ fn to_base_10_float_part(float_part: String, base_to: u8) -> f64 {
     sum
 }
 
-pub fn to_base_10(num: &str, base_to: u8) -> String {
+pub fn to_base_10(num: &str, base_to: u8) -> f64{
     let parts: Vec<&str> = num.split('.').collect();
     let int_part = parts[0];
     let float_part = if parts.len() > 1 { parts[1] } else { "" };
@@ -44,5 +44,5 @@ pub fn to_base_10(num: &str, base_to: u8) -> String {
     let int_part = to_base_10_int_part(int_part, base_to);
     let float_part = to_base_10_float_part(float_part, base_to);
 
-    format!("{}", int_part + float_part)
+    int_part+float_part
 }
