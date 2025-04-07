@@ -55,13 +55,14 @@ pub fn to_base_10(num: &str, base_to: u8) -> f64 {
     if is_negative { -result } else { result }
 }
 
-
 pub fn euclidean(mut numero: f64, base: u8) -> String {
     if base < 2 || base > 36 {
         panic!("Base precisa estar entre 2 e 36");
     }
 
-    let caracteres = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ".chars().collect::<Vec<_>>();
+    let caracteres = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+        .chars()
+        .collect::<Vec<_>>();
     let mut resultado = String::new();
 
     if numero == 0.0 {
@@ -88,7 +89,7 @@ pub fn euclidean(mut numero: f64, base: u8) -> String {
     let mut parte_fracionaria = numero - (parte_inteira as f64);
     let mut parte_fracionaria_str = String::new();
     let mut contador = 0;
-    let limite_maximo = 64; 
+    let limite_maximo = 64;
 
     if parte_fracionaria > 0.0 {
         parte_fracionaria_str.push('.');
@@ -111,14 +112,30 @@ pub fn euclidean(mut numero: f64, base: u8) -> String {
 }
 
 pub fn any_to_any(num: &str, base_from: u8, base_dest: u8) -> String {
-    let mut result = String::new();
-    let base_from_str = base_from.to_string();
-
-    for digit in num.chars() {
-        let digit_value = char_to_digit(&digit).unwrap().to_string();
-        result = operations::prod(&result, base_dest, &base_from_str, base_dest, base_dest);
-        result = operations::sum(&result, base_dest, &digit_value, base_dest, base_dest);
+    let mut result = "0".to_string();
+    
+    let base_from_str = euclidean(base_from as f64, base_dest);
+    
+    for c in num.chars() {
+        let digit_value = char_to_digit(&c).unwrap() as f64;
+        let digit_str = euclidean(digit_value, base_dest);
+        
+        result = operations::prod(
+            &result, 
+            base_dest, 
+            &base_from_str, 
+            base_dest, 
+            base_dest
+        );
+        
+        result = operations::sum(
+            &result, 
+            base_dest, 
+            &digit_str, 
+            base_dest, 
+            base_dest
+        );
     }
-
+    
     result
 }
