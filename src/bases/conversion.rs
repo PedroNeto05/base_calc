@@ -113,6 +113,8 @@ pub fn euclidean(mut numero: f64, base: u8) -> String {
 
 pub fn any_to_any(num: &str, base_from: u8, base_dest: u8) -> String {
     let mut result = "0".to_string();
+    let is_negative = num.starts_with('-');
+    let num = if is_negative { &num[1..] } else { num };
     
     let base_from_str = euclidean(base_from as f64, base_dest);
     
@@ -135,6 +137,10 @@ pub fn any_to_any(num: &str, base_from: u8, base_dest: u8) -> String {
             base_dest, 
             base_dest
         );
+    }
+    
+    if is_negative {
+        result.insert(0, '-');
     }
     
     result
