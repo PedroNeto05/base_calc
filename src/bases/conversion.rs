@@ -8,7 +8,7 @@ fn char_to_digit(digit: &char) -> Option<u8> {
     }
 }
 
-fn to_base_10_int_part(int_part: String, base: u8) -> f64 {
+fn to_base_10_int_part(int_part: &str, base: u8) -> f64 {
     let mut sum = 0;
     let digits: Vec<char> = int_part.chars().rev().collect();
     let base = base as i64;
@@ -21,7 +21,7 @@ fn to_base_10_int_part(int_part: String, base: u8) -> f64 {
     sum as f64
 }
 
-fn to_base_10_float_part(float_part: String, base_to: u8) -> f64 {
+fn to_base_10_float_part(float_part: &str, base_to: u8) -> f64 {
     let mut sum: f64 = 0.0;
     let digits: Vec<char> = float_part.chars().collect();
 
@@ -44,9 +44,6 @@ pub fn to_base_10(num: &str, base_to: u8) -> f64 {
         parts[0]
     };
     let float_part = if parts.len() > 1 { parts[1] } else { "" };
-
-    let int_part = int_part.to_string();
-    let float_part = float_part.to_string();
 
     let int_part = to_base_10_int_part(int_part, base_to);
     let float_part = to_base_10_float_part(float_part, base_to);
@@ -112,30 +109,57 @@ pub fn euclidean(mut numero: f64, base: u8) -> String {
 }
 
 pub fn any_to_any(num: &str, base_from: u8, base_dest: u8) -> String {
-    let mut result = "0".to_string();
+    let (num_str, is_negative) = match num.strip_prefix('-') {
+        Some(n) => (n, true),
+        None => (num, false),
+    };
+
+    let parts: Vec<&str> = num_str.split('.').collect();
+    let (int_part, frac_part) = match parts.as_slice() {
+        [int] => (*int, ""),
+        [int, frac] => (*int, *frac),
+        _ => panic!("Formato inválido"),
+    };
+
+    let mut result_int = "0".to_string();
+    let base_from_in_dest = euclidean(base_from as f64, base_dest);
     
-    let base_from_str = euclidean(base_from as f64, base_dest);
-    
-    for c in num.chars() {
+    for c in int_part.chars() {
         let digit_value = char_to_digit(&c).unwrap() as f64;
         let digit_str = euclidean(digit_value, base_dest);
         
-        result = operations::prod(
-            &result, 
-            base_dest, 
-            &base_from_str, 
-            base_dest, 
-            base_dest
-        );
-        
-        result = operations::sum(
-            &result, 
-            base_dest, 
-            &digit_str, 
-            base_dest, 
-            base_dest
-        );
+        result_int = operations::prod(&result_int, base_dest, &base_from_in_dest, base_dest, base_dest);
+        result_int = operations::sum(&result_int, base_dest, &digit_str, base_dest, base_dest);
     }
+
+    let mut result_frac = String::new();
+    if !frac_part.is_empty() {
+        let base_reciprocal = 1.0 / base_from as f64;
+        let mut horner_value = "0".to_string();
+        let base_reciprocal_dest = euclidean(base_reciprocal, base_dest);
+
+        for c in frac_part.chars().rev() {
+            let digit_value = char_to_digit(&c).unwrap() as f64;
+            let digit_str = euclidean(digit_value, base_dest);
+            
+            horner_value = operations::sum(&horner_value, base_dest, &digit_str, base_dest, base_dest);
+            horner_value = operations::prod(&horner_value, base_dest, &base_reciprocal_dest, base_dest, base_dest);
+        }
+        
+        let mut frac_value = to_base_10(&horner_value, base_dest);
+        for _ in 0..10 {
+            frac_value *= base_dest as f64;
+            let int_part = frac_value.floor();
+            result_frac.push_str(&euclidean(int_part, base_dest));
+            frac_value -= int_part;
+        }
+    }
+
+    let mut result = format!("{}{}", result_int, if result_frac.is_empty() { "".to_string() } else { format!(".{}", result_frac) });
     
+    if is_negative && result != "0" {
+        result.insert(0, '-');
+    }
+
     result
 }
