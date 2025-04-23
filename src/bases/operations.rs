@@ -9,3 +9,9 @@ pub fn prod(num1: &str, base1: u8, num2: &str, base2: u8, base_dest: u8) -> Stri
     let result = conversion::to_base_10(num1, base1) * conversion::to_base_10(num2, base2);
     conversion::euclidean(result, base_dest)
 }
+pub fn div(num1: &str, base1: u8, num2: &str, base2: u8, base_dest: u8) -> String {
+    let dividend = conversion::to_base_10(num1, base1);
+    let divisor = conversion::to_base_10(num2, base2);
+    let result = dividend / divisor;
+    conversion::euclidean(result, base_dest)
+}
