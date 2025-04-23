@@ -115,9 +115,13 @@ pub fn any_to_any(num: &str, base_from: u8, base_dest: u8) -> String {
     let is_negative = num.starts_with('-');
     let num = if is_negative { &num[1..] } else { num };
     
+    let parts: Vec<&str> = num.split('.').collect();
+    let int_part = parts[0];
+    let float_part = if parts.len() > 1 { parts[1] } else { "" };
+
     let base_from_str = euclidean(base_from as f64, base_dest);
     
-    for c in num.chars() {
+    for c in int_part.chars() {
         let digit_value = char_to_digit(&c).unwrap() as f64;
         let digit_str = euclidean(digit_value, base_dest);
         
@@ -134,6 +138,48 @@ pub fn any_to_any(num: &str, base_from: u8, base_dest: u8) -> String {
             base_dest, 
             &digit_str, 
             base_dest, 
+            base_dest
+        );
+    }
+
+    if !float_part.is_empty() {
+        let mut fractional_result = "0".to_string();
+        let mut base_power = "1".to_string();
+
+        for c in float_part.chars() {
+            let digit_value = char_to_digit(&c).unwrap() as f64;
+            let digit_str = euclidean(digit_value, base_dest);
+
+            base_power = operations::prod(
+                &base_power,
+                base_dest,
+                &base_from_str,
+                base_dest,
+                base_dest
+            );
+
+            let term = operations::div(
+                &digit_str,
+                base_dest,
+                &base_power,
+                base_dest,
+                base_dest
+            );
+
+            fractional_result = operations::sum(
+                &fractional_result,
+                base_dest,
+                &term,
+                base_dest,
+                base_dest
+            );
+        }
+
+        result = operations::sum(
+            &result,
+            base_dest,
+            &fractional_result.trim_start_matches('0'),
+            base_dest,
             base_dest
         );
     }
