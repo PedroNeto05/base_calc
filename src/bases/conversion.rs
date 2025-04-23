@@ -31,7 +31,6 @@ fn to_base_10_float_part(float_part: String, base_to: u8) -> f64 {
         sum += digit_value as f64 * (base_to as f64).powi(exp);
     }
 
-    // 0.123
     sum
 }
 
